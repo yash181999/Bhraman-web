@@ -1,0 +1,13 @@
+.app {
+  margin-left: 0;
+  margin-right: 0;
+  overflow-y: hidden;
+  overflow-x: hidden;
+}
+
+
+.selected{
+  color : white;
+  background-color:  black;
+  
+}
