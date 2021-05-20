@@ -1,4 +1,4 @@
-import { Paper, Popover } from "@material-ui/core";
+import { Avatar, makeStyles, Paper, Popover } from "@material-ui/core";
 import {
   EditLocation,
   EmojiNature,
@@ -15,8 +15,36 @@ import styled from "styled-components";
 import { enterItem } from "../features/appSlice";
 import { db } from "../firebase";
 
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: "flex",
+    "& > *": {
+      margin: theme.spacing(1),
+    },
+  },
+  small: {
+    width: theme.spacing(3),
+    height: theme.spacing(3),
+  },
+  large: {
+    width: theme.spacing(7),
+    height: theme.spacing(7),
+  },
+  popover: {
+    width: "200px",
+  },
+  searchItem: {
+    cursor:'pointer',
+    "&:hover": {
+      backgroundColor: "gainsboro",
+      borderRadius: "10px",
+    },
+  },
+}));
+
 function Home() {
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const classes = useStyles();
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -36,29 +64,27 @@ function Home() {
   const dbRef = db.collection("Data");
   const dispatch = useDispatch();
   const history = useHistory();
-  const [searchedCity, setSearchedCity] = useState("Indore");
 
-  const [cityData, setCityData] = useState([]);
-
-  const handleSearchInput = (e) => {
-    setSearchedCity(e.target.value);
-    searchCity(e.target.value);
+  const [searchedData, setSearchedData] = useState([]);
+  const [searchedText, setSearchedText] = useState("");
+  const handleOnChange = (e) => {
+    setSearchedText(e.target.value);
+    getSearchedData();
   };
 
-  const searchCity = (value) => {
+  const getSearchedData = () => {
     db.collection("Data")
-      .orderBy("type")
-      .where("type", "==", "AboutCity")
-      .startAt(value)
+      .orderBy("name")
+      .startAt(searchedText)
       .onSnapshot((queryData) => {
-        setCityData(queryData.docs);
+        setSearchedData(queryData.docs);
       });
   };
 
   const getMonuments = () => {
     dbRef
       .where("type", "==", "Monuments")
-      .where("city", "==", searchedCity)
+
       .onSnapshot((querySnaphsot) => {
         setMonuments(querySnaphsot.docs);
       });
@@ -67,7 +93,7 @@ function Home() {
   const getCulture = () => {
     dbRef
       .where("type", "==", "Culture")
-      .where("city", "==", searchedCity)
+
       .onSnapshot((querySnaphsot) => {
         setCulture(querySnaphsot.docs);
       });
@@ -76,7 +102,7 @@ function Home() {
   const getFestivals = () => {
     dbRef
       .where("type", "==", "Festivals")
-      .where("city", "==", searchedCity)
+
       .onSnapshot((querySnaphsot) => {
         setFestivals(querySnaphsot.docs);
       });
@@ -85,7 +111,7 @@ function Home() {
   const getFood = () => {
     dbRef
       .where("type", "==", "Food")
-      .where("city", "==", searchedCity)
+
       .onSnapshot((querySnaphsot) => {
         setFood(querySnaphsot.docs);
       });
@@ -94,7 +120,7 @@ function Home() {
   const getPlaces = () => {
     dbRef
       .where("type", "==", "SpecialPlaces")
-      .where("city", "==", searchedCity)
+
       .onSnapshot((querySnaphsot) => {
         setPlaces(querySnaphsot.docs);
       });
@@ -116,7 +142,7 @@ function Home() {
     getFestivals();
     getFood();
     getPlaces();
-  }, [searchedCity]);
+  }, []);
 
   return (
     <HomeContainer>
@@ -150,8 +176,8 @@ function Home() {
         <img src="https://static.tacdn.com/img2/brand/home/home517_mw@2x.webp" />
         <SearchBar>
           <input
-            value={searchedCity}
-            onChange={handleSearchInput}
+            value={searchedText}
+            onChange={handleOnChange}
             placeholder="City"
             onClick={handleClick}
           ></input>
@@ -173,30 +199,32 @@ function Home() {
           >
             <Paper
               style={{
+                height : '50%',
                 padding: "10px",
-                width: "500px",
+                width: "100%",
               }}
             >
-              {cityData?.length > 0 &&
-                cityData.map((value) => {
+              {searchedData?.length > 0 &&
+                searchedData.map((value) => {
                   return (
                     <div
+                      className={classes.searchItem}
                       key={value.id}
-                      onClick={() => setSearchedCity(value.data().city)}
+                      onClick={() => handlePlaceItemClick(value.id)}
                       style={{
                         padding: "10px",
-                        width: "300px",
+                        width: "100%",
                         display: "flex",
                         alignItems: "center",
-                        cursor: "pointer",
-                        width: "100%",
-                        padding: "10px",
-                        "&:hover": {
-                          color: "gray",
-                        },
                       }}
                     >
-                      <p>{value.data()?.city}</p>
+                      <Avatar
+                        src={value.data()?.images[0]}
+                        className={classes.large}
+                      ></Avatar>
+                      <div style={{ marginLeft: "10px", position: "relative" }}>
+                        {value.data().name}
+                      </div>
                     </div>
                   );
                 })}

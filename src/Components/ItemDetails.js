@@ -49,6 +49,7 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: 400,
     flexGrow: 1,
   },
+  
   header: {
     display: "flex",
     alignItems: "center",
@@ -135,7 +136,7 @@ function ItemDetails() {
   return (
     <ItemDetialContainer>
       <NameContainer>
-        <h2>{itemDetails?.name}</h2>
+        <h2>{`${itemDetails?.name} (${itemDetails?.city})`}</h2>
       </NameContainer>
       <ImageContainer>
         <SwipeableViews
@@ -288,7 +289,7 @@ function ItemDetails() {
               return (
                 <>
                   <div>
-                    <Avatar src = {profilePic}/>
+                    <Avatar className = {classes} src = {profilePic}/>
                     <div>
                       <h4>{userName}</h4>
                       <p>{new Date(timeStamp?.toDate()).toString()}</p>
